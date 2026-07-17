@@ -44,15 +44,24 @@ export function mockConfig(): OverseerConfig {
   };
 }
 
+/** env overrides let the av-launcher inject host/port without touching the file */
+function applyEnv(cfg: OverseerConfig): OverseerConfig {
+  const port = process.env.ATEM_OVERSEER_PORT;
+  const host = process.env.ATEM_OVERSEER_HOST;
+  if (port && Number.isFinite(Number(port))) cfg.httpPort = Number(port);
+  if (host) cfg.publicHost = host;
+  return cfg;
+}
+
 export function loadConfig(): OverseerConfig {
   const path = configPath();
-  if (!existsSync(path)) return { ...DEFAULTS };
+  if (!existsSync(path)) return applyEnv({ ...DEFAULTS });
   try {
     const raw = JSON.parse(readFileSync(path, 'utf8'));
-    return { ...DEFAULTS, ...raw, devices: raw.devices ?? [] };
+    return applyEnv({ ...DEFAULTS, ...raw, devices: raw.devices ?? [] });
   } catch (err) {
     console.error(`[config] failed to read ${path}:`, (err as Error).message);
-    return { ...DEFAULTS };
+    return applyEnv({ ...DEFAULTS });
   }
 }
 

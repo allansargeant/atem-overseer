@@ -1,0 +1,61 @@
+name: release
+
+# Atem Overseer is a Node (ESM) web monorepo — server + web — not a native
+# binary. This produces a portable build bundle (run with `node` on any
+# platform/arch) containing the compiled server, the built dashboard and the
+# production manifests. Desktop installers are built separately by
+# release-desktop.yml.
+# Trigger manually (Actions > release > Run workflow) or by pushing a v* tag.
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build all workspaces
+        run: npm run build
+
+      - name: Assemble portable node bundle
+        shell: bash
+        run: |
+          mkdir -p bundle
+          for ws in server web; do
+            mkdir -p "bundle/packages/$ws"
+            cp "packages/$ws/package.json" "bundle/packages/$ws/"
+            [ -d "packages/$ws/dist" ] && cp -R "packages/$ws/dist" "bundle/packages/$ws/dist"
+          done
+          cp package.json package-lock.json bundle/ 2>/dev/null || true
+          cp atem-overseer.config.example.json bundle/ 2>/dev/null || true
+          cp README.md bundle/ 2>/dev/null || true
+          tar czf atem-overseer-node-bundle.tar.gz -C bundle .
+          ls -la atem-overseer-node-bundle.tar.gz
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: atem-overseer-node-bundle
+          path: atem-overseer-node-bundle.tar.gz
+          if-no-files-found: error
+
+      - name: Publish release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: atem-overseer-node-bundle.tar.gz
+          generate_release_notes: true

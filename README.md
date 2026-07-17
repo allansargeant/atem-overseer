@@ -1,8 +1,46 @@
 # Atem Overseer
 
+> **AI-assisted project.** This codebase was created with [Claude Code](https://claude.com/claude-code)
+> (Anthropic), directed and reviewed by a human author. It was developed and
+> verified end-to-end against a built-in simulated switcher fleet (`--mock`), and
+> has **not yet** been run against live ATEM hardware. Validate transport,
+> streaming and media-upload behaviour against your own switchers before relying
+> on it for a live show.
+
 A browser-based dashboard for monitoring — and controlling — a fleet of
 Blackmagic ATEM switchers from one screen, styled after Blackmagic's own
 multiviewer.
+
+![Atem Overseer dashboard](docs/screenshots/dashboard.png)
+
+*The dashboard running the built-in `--mock` fleet: one tile per switcher with
+record/stream status, live program-audio meters, drive time-remaining, ISO/PGM
+mode and transport controls.*
+
+```mermaid
+flowchart LR
+    subgraph Switchers["ATEM switchers"]
+        A1[ATEM #1]
+        A2[ATEM #2]
+    end
+    subgraph Server["Overseer server (Node)"]
+        DM[Device manager<br/>atem-connection]
+        MS[node-media-server<br/>RTMP → http-flv]
+        WS[REST + WebSocket]
+    end
+    subgraph Browser["Dashboard (React)"]
+        T[Multiview tiles]
+        MET[Canvas meters]
+        V[mpegts.js preview]
+    end
+    A1 & A2 -- UDP state/control --> DM
+    A1 & A2 -- RTMP push --> MS
+    DM --> WS
+    MS --> WS
+    WS -- snapshots + levels --> T
+    WS --> MET
+    MS -- http-flv --> V
+```
 
 Point it at any number of ATEMs on your network and get, per device:
 
@@ -72,6 +110,16 @@ baked into the generated `Streaming.xml` and the http-flv playback URLs.
    to push the RTMP URL directly over the protocol).
 2. Set the switcher's stream key to its Overseer device id (listed in the XML).
 3. Start streaming — the feed appears in the tile.
+
+## Desktop app
+
+Prefer a one-click app over `npm`? The [`launcher/`](launcher/) directory wraps
+Overseer in the fleet's [av-launcher](https://github.com/allansargeant/av-launcher)
+tray shell — a small native menu-bar app (Tauri v2) that embeds a Node runtime
+and the whole app, so nothing needs to be installed. Pick an interface + port,
+Start/Stop, and open the dashboard from the system tray. Download an installer
+from [Releases](https://github.com/allansargeant/atem-overseer/releases), or see
+[`launcher/README.md`](launcher/README.md) to build one.
 
 ## Ports
 

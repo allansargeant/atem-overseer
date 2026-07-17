@@ -1,0 +1,140 @@
+name: release-desktop
+
+# Builds the Atem Overseer desktop tray app (av-launcher shell + embedded Node
+# runtime + built app) for macOS (arm64 + x86_64), Windows (x86_64) and Linux
+# (x86_64), and attaches the installers to the release.
+#
+# macOS x86_64 is cross-compiled on the Apple-Silicon runner (macos-14) — the
+# Intel macOS runners are retired, so we never use macos-13.
+#
+# Installers are unsigned by default. If the Apple signing/notarization secrets
+# are configured (see launcher/SIGNING.md) the macOS jobs produce a signed +
+# notarized build. Required secrets: APPLE_CERTIFICATE, APPLE_CERTIFICATE_PASSWORD,
+# APPLE_SIGNING_IDENTITY, APPLE_ID, APPLE_PASSWORD, APPLE_TEAM_ID.
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag to attach installers to (e.g. v0.1.0)'
+        required: true
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { name: macos-aarch64,  os: macos-14,       node_platform: darwin-arm64, rust_target: aarch64-apple-darwin,  tauri_target: aarch64-apple-darwin }
+          - { name: macos-x86_64,   os: macos-14,       node_platform: darwin-x64,   rust_target: x86_64-apple-darwin,   tauri_target: x86_64-apple-darwin }
+          - { name: windows-x86_64, os: windows-latest, node_platform: win-x64,      rust_target: x86_64-pc-windows-msvc }
+          - { name: linux-x86_64,   os: ubuntu-22.04,   node_platform: linux-x64,    rust_target: x86_64-unknown-linux-gnu }
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.rust_target }}
+
+      - name: Linux system dependencies
+        if: startsWith(matrix.os, 'ubuntu')
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
+
+      - name: Decide macOS signing
+        id: cfg
+        if: startsWith(matrix.os, 'macos')
+        shell: bash
+        env:
+          CERT: ${{ secrets.APPLE_CERTIFICATE }}
+        run: |
+          if [ -n "$CERT" ]; then echo "signing=true" >> "$GITHUB_OUTPUT"; else echo "signing=false" >> "$GITHUB_OUTPUT"; fi
+
+      - name: Install launcher deps
+        run: cd launcher && npm ci
+
+      - name: Build + stage embedded app
+        shell: bash
+        env:
+          NODE_PLATFORM: ${{ matrix.node_platform }}
+        run: cd launcher && bash scripts/prepare.sh
+
+      - name: Import Apple signing certificate
+        if: startsWith(matrix.os, 'macos') && steps.cfg.outputs.signing == 'true'
+        env:
+          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+        run: |
+          KEYCHAIN="$RUNNER_TEMP/app-signing.keychain-db"
+          security create-keychain -p "$APPLE_CERTIFICATE_PASSWORD" "$KEYCHAIN"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN"
+          security unlock-keychain -p "$APPLE_CERTIFICATE_PASSWORD" "$KEYCHAIN"
+          echo "$APPLE_CERTIFICATE" | base64 --decode > "$RUNNER_TEMP/cert.p12"
+          security import "$RUNNER_TEMP/cert.p12" -k "$KEYCHAIN" -P "$APPLE_CERTIFICATE_PASSWORD" -T /usr/bin/codesign
+          security list-keychain -d user -s "$KEYCHAIN" login.keychain-db
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$APPLE_CERTIFICATE_PASSWORD" "$KEYCHAIN" >/dev/null
+          rm -f "$RUNNER_TEMP/cert.p12"
+
+      - name: Pre-sign embedded Node (macOS)
+        if: startsWith(matrix.os, 'macos') && steps.cfg.outputs.signing == 'true'
+        env:
+          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+        run: cd launcher && bash scripts/sign-embedded.sh
+
+      - name: Build desktop bundle (signed macOS)
+        if: startsWith(matrix.os, 'macos') && steps.cfg.outputs.signing == 'true'
+        env:
+          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: cd launcher && npm run tauri build -- --target ${{ matrix.tauri_target }}
+
+      - name: Build desktop bundle (unsigned macOS)
+        if: startsWith(matrix.os, 'macos') && steps.cfg.outputs.signing != 'true'
+        run: cd launcher && npm run tauri build -- --target ${{ matrix.tauri_target }}
+
+      - name: Build desktop bundle (Windows / Linux)
+        if: ${{ !startsWith(matrix.os, 'macos') }}
+        run: cd launcher && npm run tauri build
+
+      - name: Collect installers
+        shell: bash
+        run: |
+          mkdir -p out
+          find launcher/src-tauri/target -type f \
+            \( -name '*.dmg' -o -name '*.msi' -o -name '*.exe' -o -name '*.deb' -o -name '*.AppImage' -o -name '*.rpm' \) \
+            -path '*/release/bundle/*' -exec cp {} out/ \; || true
+          ls -la out
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: atem-overseer-desktop-${{ matrix.name }}
+          path: out/*
+          if-no-files-found: warn
+
+      - name: Attach installers to the release
+        if: startsWith(github.ref, 'refs/tags/v') || github.event.inputs.tag != ''
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="${{ github.event.inputs.tag || github.ref_name }}"
+          for i in $(seq 1 30); do
+            if gh release view "$TAG" >/dev/null 2>&1; then break; fi
+            echo "waiting for release $TAG…"; sleep 10
+          done
+          gh release upload "$TAG" out/* --clobber

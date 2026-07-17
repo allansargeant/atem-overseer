@@ -1,0 +1,35 @@
+# Atem Overseer desktop app config.
+#
+# Atem Overseer is a Node app, so this bundle embeds BOTH a self-contained Node
+# runtime (`node`) and the whole app (server ESM bundle + built web UI,
+# mirroring the repo's packages/{server,web}/dist layout so the server's
+# import.meta.url-relative paths resolve). {resource} = the .app resource dir.
+# Fully standalone: nothing needs to be installed on the machine.
+
+[app]
+name = "Atem Overseer"
+command = "{resource}/node"
+args = ["{resource}/atem-overseer-app/packages/server/dist/index.js"]
+url = "http://{host}:{port}/"
+default_port = 4700
+# cwd omitted -> runs from the writable app-config dir.
+
+[inject]
+mode = "env"
+
+[inject.env]
+ATEM_OVERSEER_PORT = "{port}"
+ATEM_OVERSEER_HOST = "{host}"
+
+# Palette mirrored from Atem Overseer's web UI (near-black + BMD blue accent).
+[app.theme]
+bg = "#08090b"
+panel = "#121317"
+"panel-2" = "#1a1c22"
+border = "#262a31"
+text = "#e7e8ea"
+muted = "#8a909a"
+dim = "#5b616b"
+accent = "#2b8fff"
+"accent-soft" = "#122036"
+good = "#33d17a"
