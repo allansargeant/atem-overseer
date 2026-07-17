@@ -20,6 +20,7 @@ export class RealDevice extends EventEmitter implements DeviceRunner {
   private connection: DeviceSnapshot['connection'] = 'connecting';
   private getStream: (id: string) => StreamInfo;
   private hostname: string | null = null;
+  private durationPoll: ReturnType<typeof setInterval> | null = null;
 
   constructor(meta: DeviceConfig, getStream: (id: string) => StreamInfo) {
     super();
@@ -34,10 +35,12 @@ export class RealDevice extends EventEmitter implements DeviceRunner {
       this.connection = 'connected';
       // ask the switcher to start streaming Fairlight meter data
       this.atem.startFairlightMixerSendLevels().catch(() => undefined);
+      this.startDurationPolling();
       this.pushSnapshot();
     });
     this.atem.on('disconnected', () => {
       this.connection = 'disconnected';
+      this.stopDurationPolling();
       this.pushSnapshot();
     });
     this.atem.on('stateChanged', () => this.pushSnapshot());
@@ -61,7 +64,39 @@ export class RealDevice extends EventEmitter implements DeviceRunner {
   }
 
   async stop(): Promise<void> {
+    this.stopDurationPolling();
     await this.atem.disconnect().catch(() => undefined);
+  }
+
+  /**
+   * The ATEM only reports record/stream *duration* when asked — it doesn't push
+   * a per-second tick. Without this the tile timer sits frozen at 00:00:00 for
+   * the whole capture. So while a recording or stream is actually running, poll
+   * the duration once a second; each reply updates state.{recording,streaming}
+   * .duration and fires 'stateChanged', which re-pushes the snapshot. Idle the
+   * rest of the time so we add no traffic when nothing is being captured.
+   */
+  private startDurationPolling(): void {
+    if (this.durationPoll) return;
+    this.durationPoll = setInterval(() => {
+      const state = this.atem.state;
+      if (!state) return;
+      if (state.recording?.status?.state === Enums.RecordingStatus.Recording) {
+        this.atem.requestRecordingDuration().catch(() => undefined);
+      }
+      if (state.streaming?.status?.state === Enums.StreamingStatus.Streaming) {
+        this.atem.requestStreamingDuration().catch(() => undefined);
+      }
+    }, 1000);
+    // don't keep the event loop alive just for this poll
+    this.durationPoll.unref?.();
+  }
+
+  private stopDurationPolling(): void {
+    if (this.durationPoll) {
+      clearInterval(this.durationPoll);
+      this.durationPoll = null;
+    }
   }
 
   snapshot(): DeviceSnapshot {

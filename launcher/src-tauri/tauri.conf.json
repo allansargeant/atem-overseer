@@ -26,10 +26,10 @@
   },
   "bundle": {
     "active": true,
-    "targets": "all",
+    "targets": ["app", "dmg", "nsis", "deb", "rpm"],
     "resources": [
       "launcher.toml",
-      "node",
+      "node*",
       "atem-overseer-app/**/*"
     ],
     "icon": [
