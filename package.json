@@ -1,0 +1,23 @@
+{
+  "name": "atem-overseer",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Multi-device monitoring & control dashboard for Blackmagic ATEM switchers",
+  "license": "MIT",
+  "workspaces": [
+    "packages/server",
+    "packages/web"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace @atem-overseer/server",
+    "dev:mock": "npm run dev:mock --workspace @atem-overseer/server",
+    "dev:web": "npm run dev --workspace @atem-overseer/web",
+    "build": "npm run build --workspace @atem-overseer/web && npm run build --workspace @atem-overseer/server",
+    "start": "npm run start --workspace @atem-overseer/server"
+  },
+  "allowScripts": {
+    "esbuild@0.28.1": true,
+    "esbuild@0.25.12": true,
+    "@julusian/freetype2@1.3.1": true
+  }
+}

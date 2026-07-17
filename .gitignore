@@ -1,0 +1,8 @@
+node_modules/
+dist/
+.media/
+*.log
+.DS_Store
+atem-overseer.config.json
+.env
+*.tsbuildinfo

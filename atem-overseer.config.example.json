@@ -1,0 +1,10 @@
+{
+  "publicHost": "192.168.1.50",
+  "rtmpPort": 1935,
+  "mediaHttpPort": 8000,
+  "httpPort": 4700,
+  "devices": [
+    { "id": "cam-a", "name": "Main Stage", "address": "192.168.1.101" },
+    { "id": "cam-b", "name": "Overflow Room", "address": "192.168.1.102" }
+  ]
+}
