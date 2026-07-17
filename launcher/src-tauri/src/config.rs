@@ -287,6 +287,18 @@ pub fn build_launch(
     // path against the resource dir (covers both `{resource}/node` and `bin/x`).
     let program = resolve_against(&subst(&cfg.app.command, bind_host, port, None, res), resource_dir);
 
+    // On Windows the embedded runtime ships as `node.exe`; configs carry the
+    // extensionless name, so append `.exe` when that's what actually exists.
+    #[cfg(windows)]
+    let program = {
+        if std::path::Path::new(&program).exists() {
+            program
+        } else {
+            let exe = format!("{program}.exe");
+            if std::path::Path::new(&exe).exists() { exe } else { program }
+        }
+    };
+
     // Prefer an explicit cwd; otherwise run from the writable work dir so a
     // bundled server can persist state (it can't write inside a read-only .app).
     let cwd = cfg

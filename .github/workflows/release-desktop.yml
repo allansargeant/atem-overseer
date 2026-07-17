@@ -107,9 +107,14 @@ jobs:
         if: startsWith(matrix.os, 'macos') && steps.cfg.outputs.signing != 'true'
         run: cd launcher && npm run tauri build -- --target ${{ matrix.tauri_target }}
 
-      - name: Build desktop bundle (Windows / Linux)
-        if: ${{ !startsWith(matrix.os, 'macos') }}
+      - name: Build desktop bundle (Windows)
+        if: startsWith(matrix.os, 'windows')
         run: cd launcher && npm run tauri build
+
+      # AppImage bundling (linuxdeploy) is unreliable on CI runners; ship deb + rpm.
+      - name: Build desktop bundle (Linux)
+        if: startsWith(matrix.os, 'ubuntu')
+        run: cd launcher && npm run tauri build -- --bundles deb rpm
 
       - name: Collect installers
         shell: bash
