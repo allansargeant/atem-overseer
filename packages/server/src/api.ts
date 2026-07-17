@@ -5,6 +5,8 @@ import { resolve } from 'node:path';
 import type { DeviceManager } from './atem/manager.js';
 import { runCommand } from './commands.js';
 import { loadConfig, saveConfig, type OverseerConfig } from './config.js';
+import type { Discovery } from './discovery.js';
+import type { ExternalApps } from './externalApps.js';
 import {
   generateConfigXml,
   generateStreamingXml,
@@ -14,7 +16,15 @@ import {
 
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 64 * 1024 * 1024 } });
 
-export function createApi(manager: DeviceManager, cfg: OverseerConfig, webDist: string): Express {
+export interface ApiDeps {
+  manager: DeviceManager;
+  cfg: OverseerConfig;
+  webDist: string;
+  discovery: Discovery;
+  externalApps: ExternalApps;
+}
+
+export function createApi({ manager, cfg, webDist, discovery, externalApps }: ApiDeps): Express {
   const app = express();
   app.use(express.json({ limit: '2mb' }));
   app.use(express.text({ type: ['application/xml', 'text/xml'], limit: '2mb' }));
@@ -35,6 +45,43 @@ export function createApi(manager: DeviceManager, cfg: OverseerConfig, webDist: 
   });
 
   app.get('/api/snapshot', (_req, res) => res.json({ devices: manager.snapshots() }));
+
+  // ---- device management ----
+  app.get('/api/discovery', (_req, res) => {
+    res.json({ discovered: discovery.list(manager.managedAddresses()) });
+  });
+
+  app.post(
+    '/api/devices',
+    asyncH(async (req, res) => {
+      const dc = await manager.addDevice({
+        id: req.body.id,
+        name: req.body.name,
+        address: req.body.address,
+      });
+      res.json({ ok: true, device: dc });
+    }),
+  );
+
+  app.delete(
+    '/api/devices/:id',
+    asyncH(async (req, res) => {
+      await manager.removeDevice(req.params.id);
+      res.json({ ok: true });
+    }),
+  );
+
+  app.get('/api/external-apps', (_req, res) => res.json({ apps: externalApps.list() }));
+
+  app.post(
+    '/api/devices/:id/launch',
+    asyncH(async (req, res) => {
+      const device = manager.config(req.params.id);
+      if (!device) throw new Error('unknown device');
+      const result = externalApps.launch(String(req.body.app), device);
+      res.status(result.ok ? 200 : 400).json({ ...result, address: device.address });
+    }),
+  );
 
   // ---- transport / mode commands (REST twins of the WS commands) ----
   app.post(

@@ -21,6 +21,8 @@ export function attachWebSocket(server: Server, manager: DeviceManager): void {
 
   manager.on('snapshot', (device) => broadcast({ type: 'device', device }));
   manager.on('levels', (levels) => broadcast({ type: 'levels', levels }));
+  // full re-sync when a device is added or removed
+  manager.on('fleet', (devices) => broadcast({ type: 'snapshot', devices }));
 
   wss.on('connection', (ws) => {
     ws.send(JSON.stringify({ type: 'snapshot', devices: manager.snapshots() } satisfies ServerMessage));

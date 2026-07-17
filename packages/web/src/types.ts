@@ -50,10 +50,27 @@ export interface DeviceSnapshot {
     live: boolean;
   };
   disks: DiskInfo[];
+  hostname: string | null;
+  protocolVersion: string;
   audio: AudioLevels;
   monitorMuted: boolean;
   mediaPlayers: MediaPlayerAssignment[];
   lastUpdate: number;
+}
+
+export interface DiscoveredDevice {
+  address: string;
+  hostname: string | null;
+  name: string;
+  serviceType: string;
+  alreadyManaged: boolean;
+}
+
+export interface ExternalAppInfo {
+  key: string;
+  label: string;
+  autoSelect: boolean;
+  available: boolean;
 }
 
 export interface MediaPoolItem {

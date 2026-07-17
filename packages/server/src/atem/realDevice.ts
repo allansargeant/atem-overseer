@@ -1,4 +1,6 @@
 import { EventEmitter } from 'node:events';
+import { reverse as dnsReverse } from 'node:dns/promises';
+import { isIP } from 'node:net';
 import { Atem, Enums } from 'atem-connection';
 import type { SomeAtemAudioLevels } from 'atem-connection/dist/state/levels.js';
 import type { DeviceConfig } from '../config.js';
@@ -17,12 +19,15 @@ export class RealDevice extends EventEmitter implements DeviceRunner {
   private atem: Atem;
   private connection: DeviceSnapshot['connection'] = 'connecting';
   private getStream: (id: string) => StreamInfo;
+  private hostname: string | null = null;
 
   constructor(meta: DeviceConfig, getStream: (id: string) => StreamInfo) {
     super();
     this.id = meta.id;
     this.meta = meta;
     this.getStream = getStream;
+    // if the configured address is itself a hostname, use it directly
+    if (isIP(meta.address) === 0) this.hostname = meta.address;
     this.atem = new Atem();
 
     this.atem.on('connected', () => {
@@ -41,6 +46,17 @@ export class RealDevice extends EventEmitter implements DeviceRunner {
   }
 
   async start(): Promise<void> {
+    // best-effort reverse DNS so the device panel can show a hostname
+    if (!this.hostname && isIP(this.meta.address) !== 0) {
+      dnsReverse(this.meta.address)
+        .then((names) => {
+          if (names[0]) {
+            this.hostname = names[0];
+            this.pushSnapshot();
+          }
+        })
+        .catch(() => undefined);
+    }
     await this.atem.connect(this.meta.address);
   }
 
@@ -60,6 +76,7 @@ export class RealDevice extends EventEmitter implements DeviceRunner {
       connection: this.connection,
       flvUrl: stream.flvUrl,
       live: stream.live,
+      hostname: this.hostname,
     });
   }
 
@@ -81,6 +98,8 @@ export class RealDevice extends EventEmitter implements DeviceRunner {
         live: stream.live,
       },
       disks: [],
+      hostname: this.hostname,
+      protocolVersion: '—',
       audio: { leftLevel: -100, rightLevel: -100, leftPeak: -100, rightPeak: -100 },
       monitorMuted: false,
       mediaPlayers: [],

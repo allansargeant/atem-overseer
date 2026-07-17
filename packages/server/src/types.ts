@@ -60,6 +60,11 @@ export interface DeviceSnapshot {
 
   disks: DiskInfo[];
 
+  /** reverse-DNS hostname of the switcher, when resolvable */
+  hostname: string | null;
+  /** ATEM protocol/API version (the switcher's firmware version is not exposed over the wire) */
+  protocolVersion: string;
+
   audio: AudioLevels;
   /** browser-side monitor mute is client state; this is the ATEM monitor bus mute */
   monitorMuted: boolean;
@@ -85,6 +90,25 @@ export interface MediaPoolItem {
 export interface MediaPool {
   stills: MediaPoolItem[];
   clips: MediaPoolItem[];
+}
+
+export interface DiscoveredDevice {
+  address: string;
+  hostname: string | null;
+  /** advertised instance name, e.g. "ATEM Mini Extreme" */
+  name: string;
+  serviceType: string;
+  /** true if this address is already in the managed fleet */
+  alreadyManaged: boolean;
+}
+
+export interface ExternalAppInfo {
+  key: string;
+  label: string;
+  /** the app is opened with the device pre-selected (URL scheme / arg), vs launched only */
+  autoSelect: boolean;
+  /** available on the platform the server runs on */
+  available: boolean;
 }
 
 /** Real-time level packet, sent on its own channel far more often than snapshots */

@@ -52,6 +52,13 @@ Point it at any number of ATEMs on your network and get, per device:
 - **Per-device audio monitoring** you can mute/un-mute independently, so you listen to one wall at a time
 - **Remote transport** — start/stop record and stream from the browser
 
+From the top-bar **Devices** button — fleet management (see [docs/device-management.md](docs/device-management.md)):
+
+- **Best-effort mDNS discovery** of ATEMs on the network, plus **manual add** by IP or hostname
+- **Add / remove** devices from the dashboard live (persisted to the config file)
+- Per-device info — model, IP, reverse-DNS hostname, record name, protocol version
+- One-click **launch of ATEM Software Control, ATEM Setup, MixEffect or ATEM Fleet Manager**, targeting the device where a mechanism exists (MixEffect URL scheme; commands are configurable) and copying the IP to the clipboard otherwise
+
 Behind each tile's ⚙ (gear):
 
 - **Streaming.xml generator** — drop it into ATEM Software Control (or apply the service to a switcher directly) so the ATEM streams to Overseer

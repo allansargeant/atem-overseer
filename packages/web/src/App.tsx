@@ -1,9 +1,11 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useOverseer } from './useOverseer';
 import { DeviceCard } from './components/DeviceCard';
+import { DevicesPanel } from './components/DevicesPanel';
 
 export default function App() {
   const { devices, connected, toast, setToast, levelsRef, send } = useOverseer();
+  const [devicesOpen, setDevicesOpen] = useState(false);
 
   useEffect(() => {
     if (!toast) return;
@@ -25,6 +27,9 @@ export default function App() {
         <span className="fleet-stat">
           <b>{devices.length}</b> devices · <b>{recording}</b> rec · <b>{streaming}</b> live
         </span>
+        <button className="toolbtn" onClick={() => setDevicesOpen(true)}>
+          Devices
+        </button>
         <a className="toolbtn" href="/api/streaming.xml" download>
           Streaming.xml
         </a>
@@ -48,6 +53,8 @@ export default function App() {
           ))}
         </div>
       )}
+
+      {devicesOpen && <DevicesPanel devices={devices} onClose={() => setDevicesOpen(false)} />}
 
       {toast && <div className={`toast ${toast.level}`}>{toast.text}</div>}
     </>

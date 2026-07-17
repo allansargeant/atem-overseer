@@ -7,6 +7,16 @@ export interface DeviceConfig {
   address: string;
 }
 
+/** Per-platform launch override for an external app. Each value is an argv
+ *  array ([command, ...args]) with {ip} {host} {name} placeholders. */
+export interface ExternalAppOverride {
+  label?: string;
+  autoSelect?: boolean;
+  darwin?: string[];
+  win32?: string[];
+  linux?: string[];
+}
+
 export interface OverseerConfig {
   /** ATEM switchers to monitor */
   devices: DeviceConfig[];
@@ -15,6 +25,8 @@ export interface OverseerConfig {
   rtmpPort: number;
   mediaHttpPort: number;
   httpPort: number;
+  /** optional overrides for the external-app launch buttons, keyed by app id */
+  externalApps?: Record<string, ExternalAppOverride>;
 }
 
 const DEFAULTS: OverseerConfig = {

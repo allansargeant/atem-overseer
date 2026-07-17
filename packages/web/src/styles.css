@@ -250,6 +250,30 @@ select, input[type="text"] {
   padding: 6px 8px; border-radius: 4px; font-size: 12px;
 }
 
+.modal.wide { width: min(820px, 100%); }
+.toolbtn.active { border-color: var(--accent); color: #fff; background: var(--accent-soft, #122036); }
+.toolbtn.danger:hover { border-color: var(--tally-red); color: #ffb4b4; }
+
+/* device rows in the Devices panel */
+.dev-row, .disc-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 10px 0; border-top: 1px solid var(--line);
+}
+.dev-row:first-of-type, .disc-row:first-of-type { border-top: none; }
+.dev-main { flex: 1; min-width: 0; }
+.dev-name { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; }
+.dev-model { font-weight: 400; font-size: 11px; color: var(--muted); }
+.dev-meta { display: flex; flex-wrap: wrap; gap: 4px 16px; margin-top: 5px; font: 500 11px var(--mono); color: var(--muted); }
+.dev-meta b { color: var(--muted-2); font-weight: 600; margin-right: 4px; }
+.dev-meta .svc { color: var(--dim, #5b616b); }
+.dev-apps { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.applink {
+  font-size: 11px; padding: 4px 9px; border-radius: 4px;
+  border: 1px solid var(--line); background: var(--panel-2); color: var(--text); cursor: pointer;
+}
+.applink:hover:not(:disabled) { border-color: var(--accent); }
+.applink:disabled { opacity: 0.35; cursor: default; }
+
 /* toast */
 .toast {
   position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%);

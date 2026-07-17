@@ -72,6 +72,8 @@ export class MockDevice extends EventEmitter implements DeviceRunner {
           isWorkingSet: false,
         },
       ],
+      hostname: `${meta.id}.local`,
+      protocolVersion: ['9.6', '9.4', '8.1.1'][index % 3],
       audio: { leftLevel: -100, rightLevel: -100, leftPeak: -100, rightPeak: -100 },
       monitorMuted: false,
       mediaPlayers: [

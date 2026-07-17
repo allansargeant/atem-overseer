@@ -61,6 +61,16 @@ export interface NormalizeMeta {
   connection: DeviceSnapshot['connection'];
   flvUrl: string | null;
   live: boolean;
+  hostname: string | null;
+}
+
+/** ATEM reports a protocol/API version, not a firmware string. Map the enum
+ *  member (e.g. V9_6) to a friendly "9.6"; fall back to the raw value. */
+function protocolVersion(v: Enums.ProtocolVersion | undefined): string {
+  if (v === undefined) return '—';
+  const name = Enums.ProtocolVersion[v] as string | undefined;
+  if (name && /^V[\d_]+$/.test(name)) return name.slice(1).replace(/_/g, '.');
+  return `#${v}`;
 }
 
 export function normalize(state: AtemState, meta: NormalizeMeta): DeviceSnapshot {
@@ -125,6 +135,8 @@ export function normalize(state: AtemState, meta: NormalizeMeta): DeviceSnapshot
       live: meta.live,
     },
     disks,
+    hostname: meta.hostname,
+    protocolVersion: protocolVersion(state.info?.apiVersion),
     audio: { leftLevel: -100, rightLevel: -100, leftPeak: -100, rightPeak: -100 },
     monitorMuted: state.fairlight?.monitor?.inputMasterMuted ?? false,
     mediaPlayers,
