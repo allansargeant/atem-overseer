@@ -17,6 +17,37 @@ export interface ExternalAppOverride {
   linux?: string[];
 }
 
+export interface RestreamerDestination {
+  id: string;
+  name: string;
+  url: string;
+  streamKey?: string;
+  enabled: boolean;
+}
+
+/**
+ * Optional Restreamer (datarhei Core) integration. When enabled, ATEMs stream to
+ * the Restreamer instead of directly to Overseer; Restreamer fans the feed out to
+ * an automatic monitor copy back into Overseer's ingest, plus any egress
+ * destinations. See docs/restreamer.md.
+ */
+export interface RestreamerSettings {
+  enabled: boolean;
+  /** base URL of the Restreamer / datarhei Core, e.g. http://restreamer.local:8080 */
+  url: string;
+  username: string;
+  password: string;
+  /** how the ATEM reaches the Restreamer's RTMP ingest */
+  rtmpHost: string;
+  rtmpPort: number;
+  rtmpApp: string;
+  rtmpToken?: string;
+  /** namespacing prefix for our processes on a shared Restreamer */
+  referencePrefix: string;
+  /** per-device egress destinations, keyed by device id */
+  channels?: Record<string, { destinations: RestreamerDestination[] }>;
+}
+
 export interface OverseerConfig {
   /** ATEM switchers to monitor */
   devices: DeviceConfig[];
@@ -27,6 +58,8 @@ export interface OverseerConfig {
   httpPort: number;
   /** optional overrides for the external-app launch buttons, keyed by app id */
   externalApps?: Record<string, ExternalAppOverride>;
+  /** optional Restreamer split-pipeline integration */
+  restreamer?: RestreamerSettings;
 }
 
 const DEFAULTS: OverseerConfig = {
@@ -53,6 +86,29 @@ export function mockConfig(): OverseerConfig {
       { id: 'cam-b', name: 'Overflow Room', address: '10.0.0.12' },
       { id: 'cam-c', name: 'Foyer / B-Roll', address: '10.0.0.13' },
     ],
+    restreamer: {
+      enabled: true,
+      url: 'http://restreamer.local:8080',
+      username: 'admin',
+      password: 'demo',
+      rtmpHost: 'restreamer.local',
+      rtmpPort: 1935,
+      rtmpApp: 'live',
+      referencePrefix: 'atem-overseer',
+      channels: {
+        'cam-a': {
+          destinations: [
+            {
+              id: 'yt',
+              name: 'YouTube Live',
+              url: 'rtmp://a.rtmp.youtube.com/live2',
+              streamKey: 'demo-key',
+              enabled: true,
+            },
+          ],
+        },
+      },
+    },
   };
 }
 

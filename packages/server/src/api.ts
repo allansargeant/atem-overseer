@@ -7,6 +7,7 @@ import { runCommand } from './commands.js';
 import { loadConfig, saveConfig, type OverseerConfig } from './config.js';
 import type { Discovery } from './discovery.js';
 import type { ExternalApps } from './externalApps.js';
+import type { RestreamerService } from './restreamerService.js';
 import {
   generateConfigXml,
   generateStreamingXml,
@@ -22,9 +23,10 @@ export interface ApiDeps {
   webDist: string;
   discovery: Discovery;
   externalApps: ExternalApps;
+  restreamer: RestreamerService;
 }
 
-export function createApi({ manager, cfg, webDist, discovery, externalApps }: ApiDeps): Express {
+export function createApi({ manager, cfg, webDist, discovery, externalApps, restreamer }: ApiDeps): Express {
   const app = express();
   app.use(express.json({ limit: '2mb' }));
   app.use(express.text({ type: ['application/xml', 'text/xml'], limit: '2mb' }));
@@ -80,6 +82,51 @@ export function createApi({ manager, cfg, webDist, discovery, externalApps }: Ap
       if (!device) throw new Error('unknown device');
       const result = externalApps.launch(String(req.body.app), device);
       res.status(result.ok ? 200 : 400).json({ ...result, address: device.address });
+    }),
+  );
+
+  // ---- Restreamer split pipeline ----
+  app.get(
+    '/api/restreamer',
+    asyncH(async (_req, res) => res.json(await restreamer.status())),
+  );
+
+  app.get('/api/restreamer/compose', (_req, res) => {
+    res.setHeader('Content-Type', 'application/yaml');
+    res.setHeader('Content-Disposition', 'attachment; filename="docker-compose.restreamer.yml"');
+    res.send(restreamer.composeYaml());
+  });
+
+  app.get(
+    '/api/devices/:id/restreamer',
+    asyncH(async (req, res) => {
+      if (!manager.config(req.params.id)) throw new Error('unknown device');
+      res.json(await restreamer.channel(req.params.id));
+    }),
+  );
+
+  app.post(
+    '/api/devices/:id/restreamer/provision',
+    asyncH(async (req, res) => {
+      if (!manager.config(req.params.id)) throw new Error('unknown device');
+      res.json(await restreamer.provision(req.params.id));
+    }),
+  );
+
+  app.put(
+    '/api/devices/:id/restreamer/destinations',
+    asyncH(async (req, res) => {
+      if (!manager.config(req.params.id)) throw new Error('unknown device');
+      const destinations = Array.isArray(req.body?.destinations) ? req.body.destinations : [];
+      res.json(await restreamer.setDestinations(req.params.id, destinations));
+    }),
+  );
+
+  app.delete(
+    '/api/devices/:id/restreamer',
+    asyncH(async (req, res) => {
+      await restreamer.teardown(req.params.id);
+      res.json({ ok: true });
     }),
   );
 

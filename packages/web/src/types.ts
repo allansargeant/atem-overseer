@@ -73,6 +73,34 @@ export interface ExternalAppInfo {
   available: boolean;
 }
 
+export interface RestreamerDestination {
+  id: string;
+  name: string;
+  url: string;
+  streamKey?: string;
+  enabled: boolean;
+}
+
+export interface RestreamerStatus {
+  enabled: boolean;
+  configured: boolean;
+  url?: string;
+  reachable?: boolean;
+  referencePrefix?: string;
+}
+
+export interface RestreamerChannel {
+  channelId: string;
+  processId: string;
+  provisioned: boolean;
+  running: boolean;
+  exec?: string;
+  lastLog?: string;
+  ingestPushUrl: string;
+  monitorUrl: string;
+  destinations: RestreamerDestination[];
+}
+
 export interface MediaPoolItem {
   slotIndex: number;
   isUsed: boolean;

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import type { ClientMessage, DeviceSnapshot, MediaPool } from '../types';
+import { RestreamerSection } from './RestreamerSection';
 
 /**
  * Advanced, less-frequently-used controls, kept behind the tile's gear icon:
@@ -105,6 +106,9 @@ export function GearPanel({
             </button>
           </div>
         </div>
+
+        {/* restreamer split pipeline */}
+        <RestreamerSection deviceId={device.id} />
 
         {/* config */}
         <div className="section">

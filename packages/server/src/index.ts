@@ -6,6 +6,7 @@ import { DeviceManager } from './atem/manager.js';
 import { MediaServer } from './stream/mediaServer.js';
 import { Discovery } from './discovery.js';
 import { ExternalApps } from './externalApps.js';
+import { RestreamerService } from './restreamerService.js';
 import { loadConfig, mockConfig, type OverseerConfig } from './config.js';
 
 const MOCK = process.argv.includes('--mock');
@@ -21,6 +22,7 @@ async function main(): Promise<void> {
   const manager = new DeviceManager(cfg, MOCK, media.streamInfo);
   const discovery = new Discovery(MOCK);
   const externalApps = new ExternalApps(cfg);
+  const restreamer = new RestreamerService(cfg, MOCK);
 
   // when a switcher starts/stops publishing to the RTMP ingest, refresh its tile
   media.on('liveChanged', (id: string) => {
@@ -32,7 +34,7 @@ async function main(): Promise<void> {
   discovery.start();
   await manager.start();
 
-  const app = createApi({ manager, cfg, webDist, discovery, externalApps });
+  const app = createApi({ manager, cfg, webDist, discovery, externalApps, restreamer });
   const server = createServer(app);
   const { attachWebSocket } = await import('./wsBridge.js');
   attachWebSocket(server, manager);

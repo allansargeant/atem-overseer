@@ -62,6 +62,7 @@ From the top-bar **Devices** button — fleet management (see [docs/device-manag
 Behind each tile's ⚙ (gear):
 
 - **Streaming.xml generator** — drop it into ATEM Software Control (or apply the service to a switcher directly) so the ATEM streams to Overseer
+- **Restreamer split pipeline** (optional) — stream the ATEM to a [Restreamer](https://datarhei.com/restreamer) instead, which copies one feed back to Overseer for preview and fans the rest out to YouTube/Twitch/etc., managed per-device. See [docs/restreamer.md](docs/restreamer.md). Built as a portable `@av/restreamer` package so [flock](https://github.com/allansargeant) can reuse it.
 - **Config XML save / load** for the monitored fleet
 - **Media pool upload** (any image, converted to the switcher's native RGBA in-browser) and **media-player assignment**
 

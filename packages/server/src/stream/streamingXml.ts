@@ -15,8 +15,23 @@ function esc(s: string): string {
  *
  * Format mirrors Blackmagic's shipped Streaming.xml (service > servers > profiles).
  */
+/** The RTMP ingest an ATEM should publish to: Restreamer when enabled (so it can
+ *  fan out), otherwise Overseer's own node-media-server. */
+export function ingestTarget(cfg: OverseerConfig): { serviceName: string; baseUrl: string } {
+  const r = cfg.restreamer;
+  if (r?.enabled) {
+    const base = `rtmp://${r.rtmpHost}:${r.rtmpPort}/${r.rtmpApp || 'live'}`;
+    return {
+      serviceName: 'Restreamer (Atem Overseer split)',
+      baseUrl: r.rtmpToken ? `${base}?token=${encodeURIComponent(r.rtmpToken)}` : base,
+    };
+  }
+  return { serviceName: 'Atem Overseer (Local)', baseUrl: `rtmp://${cfg.publicHost}:${cfg.rtmpPort}/live` };
+}
+
 export function generateStreamingXml(cfg: OverseerConfig): string {
-  const rtmpBase = `rtmp://${cfg.publicHost}:${cfg.rtmpPort}/live`;
+  const target = ingestTarget(cfg);
+  const rtmpBase = target.baseUrl;
   const keys = cfg.devices.map((d) => `    ${esc(d.name)}: stream key = ${esc(d.id)}`).join('\n');
   const profile = (name: string, bitrate: number, audio: number) => `			<profile>
 				<name>${name}</name>
@@ -45,7 +60,7 @@ ${keys}
 -->
 <streaming>
 	<service>
-		<name>Atem Overseer (Local)</name>
+		<name>${esc(target.serviceName)}</name>
 		<servers>
 			<server>
 				<name>Primary</name>
@@ -62,11 +77,13 @@ ${profile('Streaming Low', 3_000_000, 128_000)}
 `;
 }
 
-/** Server URL + key for a single device, for the direct setStreamingService path. */
+/** Server URL + key for a single device, for the direct setStreamingService path.
+ *  Targets Restreamer's ingest when enabled, otherwise Overseer's own. */
 export function streamingServiceFor(cfg: OverseerConfig, deviceId: string) {
+  const target = ingestTarget(cfg);
   return {
-    serviceName: 'Atem Overseer (Local)',
-    url: `rtmp://${cfg.publicHost}:${cfg.rtmpPort}/live`,
+    serviceName: target.serviceName,
+    url: target.baseUrl,
     key: deviceId,
     bitrates: [9_000_000, 3_000_000] as [number, number],
   };

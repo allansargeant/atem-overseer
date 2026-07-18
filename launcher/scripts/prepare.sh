@@ -54,19 +54,25 @@ cp "$REPO/packages/server/package.json" "$APP/packages/server/package.json"
 cp -R "$REPO/packages/web/dist" "$APP/packages/web/dist"
 
 echo "==> installing production node_modules (with native prebuilds for $PLATFORM)"
-# A minimal top-level manifest whose deps are the server's runtime deps, so a
-# single hoisted node_modules serves the app.
+# A minimal top-level manifest whose deps are the server's registry runtime deps.
+# Workspace-local packages (@av/*) aren't on npm, so we drop them here and vendor
+# their built output into node_modules afterwards.
 node -e '
   const fs = require("fs");
   const pkg = require(process.argv[1]);
+  const deps = Object.fromEntries(
+    Object.entries(pkg.dependencies || {}).filter(([n]) => !n.startsWith("@av/")),
+  );
   fs.writeFileSync(process.argv[2], JSON.stringify({
-    name: "atem-overseer-app",
-    private: true,
-    type: "module",
-    dependencies: pkg.dependencies || {}
+    name: "atem-overseer-app", private: true, type: "module", dependencies: deps,
   }, null, 2));
 ' "$REPO/packages/server/package.json" "$APP/package.json"
 ( cd "$APP" && npm install --omit=dev --no-audit --no-fund )
+
+echo "==> vendoring workspace packages (@av/*) into node_modules"
+mkdir -p "$APP/node_modules/@av/restreamer"
+cp -R "$REPO/packages/restreamer/dist" "$APP/node_modules/@av/restreamer/dist"
+cp "$REPO/packages/restreamer/package.json" "$APP/node_modules/@av/restreamer/package.json"
 
 echo "==> fetching self-contained Node $NODE_VERSION ($PLATFORM)"
 if [[ "$PLATFORM" == win-* ]]; then
