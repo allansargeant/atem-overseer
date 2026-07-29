@@ -147,6 +147,7 @@ from [Releases](https://github.com/stoatworks-labs/atem-overseer/releases), or s
 | [docs/device-management.md](docs/device-management.md) | Discovery, adding devices, external-app launch |
 | [docs/streaming-setup.md](docs/streaming-setup.md) | Getting live preview working end to end |
 | [docs/restreamer.md](docs/restreamer.md) | The optional split pipeline |
+| [docs/diagnostics.md](docs/diagnostics.md) | Where the logs are, what a crash report contains, and how to send one file that explains a fault |
 
 ## Scope & honest caveats
 

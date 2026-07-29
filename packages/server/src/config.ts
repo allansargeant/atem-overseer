@@ -1,5 +1,6 @@
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { log } from './diag/index.js';
 
 export interface DeviceConfig {
   id: string;
@@ -128,7 +129,7 @@ export function loadConfig(): OverseerConfig {
     const raw = JSON.parse(readFileSync(path, 'utf8'));
     return applyEnv({ ...DEFAULTS, ...raw, devices: raw.devices ?? [] });
   } catch (err) {
-    console.error(`[config] failed to read ${path}:`, (err as Error).message);
+    log.error({ path, err: (err as Error).message }, 'failed to read config');
     return applyEnv({ ...DEFAULTS });
   }
 }

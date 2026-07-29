@@ -6,6 +6,7 @@ import {
   type Destination,
 } from '@av/restreamer';
 import { saveConfig, type OverseerConfig, type RestreamerDestination } from './config.js';
+import { log } from './diag/index.js';
 
 export interface RestreamerStatus {
   enabled: boolean;
@@ -108,7 +109,7 @@ export class RestreamerService {
     try {
       saveConfig(this.cfg);
     } catch (err) {
-      console.error('[restreamer] config save failed:', (err as Error).message);
+      log.error({ err: (err as Error).message }, 'restreamer config save failed');
     }
   }
 
