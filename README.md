@@ -137,6 +137,17 @@ from [Releases](https://github.com/allansargeant/atem-overseer/releases), or see
 | 1935 | RTMP ingest (`rtmp://<host>:1935/live/<deviceId>`) |
 | 8000 | http-flv playback (`http://<host>:8000/live/<deviceId>.flv`) |
 
+## Documentation
+
+| Doc | Contents |
+|---|---|
+| [docs/USER-GUIDE.md](docs/USER-GUIDE.md) | Reading a tile, transport controls, live preview, troubleshooting |
+| [docs/API.md](docs/API.md) | REST routes, the WebSocket protocol, snapshot fields, config schema, XML formats |
+| [docs/DEVELOPING.md](docs/DEVELOPING.md) | Monorepo build order, the mock-first rule, server internals |
+| [docs/device-management.md](docs/device-management.md) | Discovery, adding devices, external-app launch |
+| [docs/streaming-setup.md](docs/streaming-setup.md) | Getting live preview working end to end |
+| [docs/restreamer.md](docs/restreamer.md) | The optional split pipeline |
+
 ## Scope & honest caveats
 
 - **Metering is telemetry, always shown.** The per-tile mute only silences the
@@ -147,6 +158,9 @@ from [Releases](https://github.com/allansargeant/atem-overseer/releases), or see
   "full" reference.
 - **Config XML** here is Overseer's own fleet/ingest config, not a full ATEM
   state backup. Device-list changes take effect on restart.
+- **No authentication, and the server binds to every interface.** Anyone who can reach port
+  4700 can start/stop recording and streaming on your switchers. There is no token, session or
+  TLS option — run it on a private production network only.
 - Developed and verified end-to-end against the built-in `--mock` fleet. Validate
   transport/upload behaviour against your specific ATEM model before relying on
   it live.
