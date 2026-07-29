@@ -160,7 +160,7 @@ likely to match reality — **don't let them be described as proven** in any new
 
 ## 8. Conventions
 
-- Ships as its own desktop app via **[av-launcher](https://github.com/allansargeant/av-launcher)**.
+- Ships as its own desktop app via **[av-launcher](https://github.com/stoatworks-labs/av-launcher)**.
   Note the macOS Gatekeeper trap common to all av-launcher apps: for an unsigned `.app` bundling
   helper binaries, **approving the app does not unquarantine its payload** — helpers are
   SIGKILLed silently. See [`launcher/SIGNING.md`](../launcher/SIGNING.md).

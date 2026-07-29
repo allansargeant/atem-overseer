@@ -122,11 +122,11 @@ baked into the generated `Streaming.xml` and the http-flv playback URLs.
 ## Desktop app
 
 Prefer a one-click app over `npm`? The [`launcher/`](launcher/) directory wraps
-Overseer in the fleet's [av-launcher](https://github.com/allansargeant/av-launcher)
+Overseer in the fleet's [av-launcher](https://github.com/stoatworks-labs/av-launcher)
 tray shell — a small native menu-bar app (Tauri v2) that embeds a Node runtime
 and the whole app, so nothing needs to be installed. Pick an interface + port,
 Start/Stop, and open the dashboard from the system tray. Download an installer
-from [Releases](https://github.com/allansargeant/atem-overseer/releases), or see
+from [Releases](https://github.com/stoatworks-labs/atem-overseer/releases), or see
 [`launcher/README.md`](launcher/README.md) to build one.
 
 ## Ports

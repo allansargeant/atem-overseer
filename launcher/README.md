@@ -3,10 +3,10 @@
 A small menu-bar desktop app for Atem Overseer: pick a network interface + port,
 Start/Stop the server, open the dashboard, and run it from the system tray.
 Built with [Tauri v2](https://tauri.app) using the fleet's reusable
-[av-launcher](https://github.com/allansargeant/av-launcher) shell.
+[av-launcher](https://github.com/stoatworks-labs/av-launcher) shell.
 
 Download an installer from
-[Releases](https://github.com/allansargeant/atem-overseer/releases).
+[Releases](https://github.com/stoatworks-labs/atem-overseer/releases).
 
 > **Fully self-contained.** Because Atem Overseer is a Node app, this bundle
 > embeds a Node runtime **and** the whole app (server + built dashboard).
