@@ -8,15 +8,33 @@ import { Discovery } from './discovery.js';
 import { ExternalApps } from './externalApps.js';
 import { RestreamerService } from './restreamerService.js';
 import { loadConfig, mockConfig, type OverseerConfig } from './config.js';
+import { collectDiagnostics, init as initDiag, log, setConfig } from './diag/index.js';
 
 const MOCK = process.argv.includes('--mock');
+const COLLECT_DIAGNOSTICS = process.argv.includes('--collect-diagnostics');
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const webDist = resolve(__dirname, '../../web/dist');
 
 async function main(): Promise<void> {
+  // Before anything that can fail — including reading the config file — so a
+  // failure during startup is logged and captured like any other.
+  initDiag({
+    app: 'atem-overseer',
+    envPrefix: 'ATEM_OVERSEER',
+    version: process.env.npm_package_version ?? '0.2.0',
+    cwd: resolve(__dirname, '../../..'),
+  });
+
   const fileCfg = loadConfig();
   const cfg: OverseerConfig = MOCK && fileCfg.devices.length === 0 ? mockConfig() : fileCfg;
+  setConfig(cfg);
+
+  if (COLLECT_DIAGNOSTICS) {
+    // stdout, so it can be used in a script; everything else went to stderr.
+    console.log(collectDiagnostics());
+    return;
+  }
 
   const media = new MediaServer(cfg);
   const manager = new DeviceManager(cfg, MOCK, media.streamInfo);
@@ -41,15 +59,30 @@ async function main(): Promise<void> {
 
   server.listen(cfg.httpPort, () => {
     const mode = MOCK ? ' [MOCK]' : '';
-    console.log(`\n  Atem Overseer${mode}`);
-    console.log(`  ├─ dashboard   http://localhost:${cfg.httpPort}`);
-    console.log(`  ├─ rtmp ingest rtmp://${cfg.publicHost}:${cfg.rtmpPort}/live/<deviceId>`);
-    console.log(`  ├─ http-flv    http://${cfg.publicHost}:${cfg.mediaHttpPort}/live/<deviceId>.flv`);
-    console.log(`  └─ devices     ${cfg.devices.map((d) => d.id).join(', ') || '(none configured)'}\n`);
+    // The banner stays a banner: it is an operator-facing summary at startup,
+    // and boxing it into log lines would make it harder to read, not easier.
+    // The same facts go to the log below, where a tool can find them.
+    process.stderr.write(
+      `\n  Atem Overseer${mode}\n` +
+        `  ├─ dashboard   http://localhost:${cfg.httpPort}\n` +
+        `  ├─ rtmp ingest rtmp://${cfg.publicHost}:${cfg.rtmpPort}/live/<deviceId>\n` +
+        `  ├─ http-flv    http://${cfg.publicHost}:${cfg.mediaHttpPort}/live/<deviceId>.flv\n` +
+        `  └─ devices     ${cfg.devices.map((d) => d.id).join(', ') || '(none configured)'}\n\n`,
+    );
+    log.info(
+      {
+        mock: MOCK,
+        httpPort: cfg.httpPort,
+        rtmpPort: cfg.rtmpPort,
+        mediaHttpPort: cfg.mediaHttpPort,
+        devices: cfg.devices.map((d) => d.id),
+      },
+      'listening',
+    );
   });
 
   const shutdown = async () => {
-    console.log('\nShutting down…');
+    log.info('shutting down');
     await manager.stop();
     discovery.stop();
     media.stop();
@@ -61,6 +94,9 @@ async function main(): Promise<void> {
 }
 
 main().catch((err) => {
-  console.error('Fatal:', err);
-  process.exit(1);
+  // Startup failures are fatal and worth a crash report, so re-raise rather
+  // than swallowing: the uncaughtException handler writes the report.
+  setImmediate(() => {
+    throw err;
+  });
 });

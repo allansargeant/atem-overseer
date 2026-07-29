@@ -9,7 +9,8 @@
     "dev:mock": "tsx watch src/index.ts --mock",
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc --noEmit -p tsconfig.json",
-    "start": "node dist/index.js"
+    "start": "node dist/index.js",
+    "diag:crash-example": "tsx scripts/crash-example.ts"
   },
   "dependencies": {
     "@av/restreamer": "*",
@@ -18,6 +19,7 @@
     "multer": "^2.0.0",
     "multicast-dns": "^7.2.5",
     "node-media-server": "^2.7.4",
+    "pino": "^10.3.1",
     "ws": "^8.18.0"
   },
   "devDependencies": {

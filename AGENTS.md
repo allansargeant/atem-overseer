@@ -46,7 +46,16 @@ npm run dev:web      # web only
 npm run build
 npm run typecheck
 npm start            # start the built server
+
+npm start -- --collect-diagnostics    # write one JSON file explaining the state of things
+npm run diag:crash-example --workspace @atem-overseer/server   # see what a crash report looks like
 ```
+
+**Logging: use `log` from `src/diag/index.js`, not `console`.** It writes a
+rotating human-readable file *and* keeps an in-memory ring that gets embedded
+into a crash report when the process dies. `console.log` bypasses both, and
+anything you put on stdout corrupts `--collect-diagnostics`, whose stdout is a
+path. See [docs/diagnostics.md](docs/diagnostics.md).
 
 ## 5. The working rule: develop against `--mock`
 

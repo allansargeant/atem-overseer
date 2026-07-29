@@ -1,5 +1,6 @@
 import makeMdns from 'multicast-dns';
 import type { DiscoveredDevice } from './types.js';
+import { log } from './diag/index.js';
 
 /** service types we treat as "an ATEM". Blackmagic's exact DNS-SD type isn't
  *  publicly documented and older ATEMs don't advertise at all, so we also
@@ -54,7 +55,7 @@ export class Discovery {
       this.query();
       this.timer = setInterval(() => this.query(), 15_000);
     } catch (err) {
-      console.error('[discovery] mDNS unavailable:', (err as Error).message);
+      log.warn({ err: (err as Error).message }, 'mDNS unavailable; discovery disabled');
     }
   }
 

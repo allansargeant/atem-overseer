@@ -5,6 +5,7 @@ import type { DeviceSnapshot, LevelPacket } from '../types.js';
 import type { DeviceRunner, StreamInfo } from './runner.js';
 import { RealDevice } from './realDevice.js';
 import { MockDevice } from './mock.js';
+import { log } from '../diag/index.js';
 
 export interface ManagerEvents {
   snapshot: (s: DeviceSnapshot) => void;
@@ -42,7 +43,7 @@ export class DeviceManager extends EventEmitter {
     runner.on('levels', (audio) => {
       this.latestLevels.set(dc.id, { id: dc.id, audio });
     });
-    runner.on('error', (e) => console.error(`[atem:${dc.id}]`, e));
+    runner.on('error', (e) => log.error({ device: dc.id, err: e?.message ?? String(e) }, 'device error'));
     return runner;
   }
 
@@ -53,7 +54,7 @@ export class DeviceManager extends EventEmitter {
 
     await Promise.all(
       [...this.runners.values()].map((r) =>
-        r.start().catch((e) => console.error(`[atem:${r.id}] start failed:`, e?.message ?? e)),
+        r.start().catch((e) => log.error({ device: r.id, err: e?.message ?? String(e) }, 'device start failed')),
       ),
     );
 
@@ -87,7 +88,7 @@ export class DeviceManager extends EventEmitter {
     this.runners.set(id, runner);
     this.cfg.devices.push(dc);
     this.persist();
-    await runner.start().catch((e) => console.error(`[atem:${id}] start failed:`, e?.message ?? e));
+    await runner.start().catch((e) => log.error({ device: id, err: e?.message ?? String(e) }, 'device start failed'));
     this.emitFleet();
     return dc;
   }
@@ -108,7 +109,7 @@ export class DeviceManager extends EventEmitter {
     try {
       saveConfig(this.cfg);
     } catch (err) {
-      console.error('[config] save failed:', (err as Error).message);
+      log.error({ err: (err as Error).message }, 'config save failed');
     }
   }
 
