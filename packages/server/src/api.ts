@@ -26,11 +26,32 @@ export interface ApiDeps {
   restreamer: RestreamerService;
 }
 
+/**
+ * The REST half of the server. The WebSocket half is wsBridge.ts; between them
+ * they are the whole external surface.
+ *
+ * NO AUTHENTICATION, ANYWHERE. index.ts calls server.listen() with no host
+ * argument, so this binds every interface — and the transport routes below
+ * start and stop recording and streaming on switchers that may be live on air.
+ * Anything that can reach the port can do that, with no token, session or TLS.
+ * Adding a route here is adding it to an unauthenticated endpoint; adding one
+ * that writes files or spawns processes doubly so.
+ */
 export function createApi({ manager, cfg, webDist, discovery, externalApps, restreamer }: ApiDeps): Express {
   const app = express();
   app.use(express.json({ limit: '2mb' }));
   app.use(express.text({ type: ['application/xml', 'text/xml'], limit: '2mb' }));
 
+  /**
+   * Wrap an async handler so a rejection becomes a response instead of an
+   * unhandled promise.
+   *
+   * Note it turns EVERY error into 400, including "unknown device" — which
+   * would more naturally be a 404. A client therefore cannot tell a malformed
+   * request from a missing device; both arrive as 400 with a message. That is
+   * current behaviour rather than a considered design, and docs/API.md
+   * documents it as such. If you split the statuses, update that doc.
+   */
   const asyncH =
     (fn: (req: express.Request, res: express.Response) => Promise<unknown>) =>
     (req: express.Request, res: express.Response) =>
@@ -75,6 +96,15 @@ export function createApi({ manager, cfg, webDist, discovery, externalApps, rest
 
   app.get('/api/external-apps', (_req, res) => res.json({ apps: externalApps.list() }));
 
+  /**
+   * Launch a desktop app (ATEM Software Control and friends) with the device
+   * pre-selected where the app supports it.
+   *
+   * It spawns the process on the SERVER's machine, not the browser's. If the
+   * dashboard is open on a different computer, the app opens where nobody is
+   * looking at it. Returns the launcher's own ok flag as 200/400 rather than
+   * throwing.
+   */
   app.post(
     '/api/devices/:id/launch',
     asyncH(async (req, res) => {
@@ -113,6 +143,13 @@ export function createApi({ manager, cfg, webDist, discovery, externalApps, rest
     }),
   );
 
+  /**
+   * Replace a device's egress destination list.
+   *
+   * A body whose `destinations` is not an array is treated as an empty array,
+   * so a malformed request SILENTLY CLEARS every destination for that device
+   * rather than erroring. Deliberate leniency, genuinely surprising outcome.
+   */
   app.put(
     '/api/devices/:id/restreamer/destinations',
     asyncH(async (req, res) => {
@@ -131,6 +168,15 @@ export function createApi({ manager, cfg, webDist, discovery, externalApps, rest
   );
 
   // ---- transport / mode commands (REST twins of the WS commands) ----
+  //
+  // These four go through runCommand(), the same function wsBridge.ts calls, so
+  // the REST and WebSocket control paths cannot drift apart. Add commands
+  // there, not here.
+  //
+  // Note what runCommand does with `action`: it compares against the literal
+  // 'start'. Anything else — a typo, a missing field, a boolean — means STOP,
+  // with no validation and an {ok:true} response. So POSTing {"action":"begin"}
+  // stops a recording and reports success.
   app.post(
     '/api/devices/:id/record',
     asyncH(async (req, res) => {
@@ -167,6 +213,14 @@ export function createApi({ manager, cfg, webDist, discovery, externalApps, rest
     res.send(generateStreamingXml(cfg));
   });
 
+  /**
+   * Push the RTMP streaming config to a switcher over the protocol, as an
+   * alternative to downloading Streaming.xml.
+   *
+   * Not every model supports it. A runner without setStreamingService throws
+   * "device does not support remote streaming config" — a capability gap on the
+   * switcher, not a fault here. Those models need the XML route.
+   */
   app.post(
     '/api/devices/:id/streaming-service',
     asyncH(async (req, res) => {
@@ -185,6 +239,14 @@ export function createApi({ manager, cfg, webDist, discovery, externalApps, rest
     res.send(generateConfigXml(cfg));
   });
 
+  /**
+   * Import an Overseer config XML: merged over the on-disk config and saved.
+   *
+   * DEVICE CHANGES DO NOT TAKE EFFECT UNTIL RESTART — the response says so in
+   * its `note` field, and the dashboard keeps showing the old fleet until then.
+   * This is Overseer's own fleet/ingest config, not an ATEM state backup;
+   * restoring it restores nothing about the switchers themselves.
+   */
   app.post(
     '/api/config.xml',
     asyncH(async (req, res) => {
@@ -218,7 +280,17 @@ export function createApi({ manager, cfg, webDist, discovery, externalApps, rest
     }),
   );
 
-  // raw RGBA (converted browser-side to the switcher resolution) -> media pool still
+  /**
+   * Upload a still into the media pool.
+   *
+   * The payload is RAW RGBA, not PNG or JPEG — the browser decodes and scales
+   * to the switcher's resolution before posting, and this passes the buffer
+   * straight through. A client that posts an encoded image produces garbage in
+   * the media pool rather than an error. 64 MB cap (see `upload` above).
+   *
+   * Media upload is one of the paths never exercised against real hardware;
+   * see the README's caveats before relying on it.
+   */
   app.post(
     '/api/devices/:id/media/still',
     upload.single('data'),
