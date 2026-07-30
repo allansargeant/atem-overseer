@@ -1,7 +1,7 @@
 # atem-overseer's hosted demo
 
 The dashboard talks to ATEM switchers over the LAN, so it can't be hosted in any
-useful sense. What is at <https://stoatworks-labs.com/atem-overseer/> is a
+useful sense. What is at <https://atem-overseer.stoatworks-labs.com> is a
 **click-through demo**: the real, unmodified dashboard, replaying responses
 recorded from the server running its built-in `--mock` fleet.
 
@@ -27,9 +27,9 @@ too; worth doing, not done.
 | `record-fixtures.mjs` | Records a running backend's responses (vendored) |
 | `demo-shim.js` | Replays the recording in the page over `fetch`/`WebSocket` (vendored) |
 | `build-demo.sh` | Assembles the built web app + shim + fixtures into a site (vendored) |
-| `serve-demo.py` | Serves it with GitHub Pages' headers, for local checking (vendored) |
-| `deploy-pages.sh` | Pushes the built site to `gh-pages` (vendored) |
+| `serve-demo.py` | Serves it with a static host's headers, for local checking (vendored) |
 | `demo-fixtures.json` | The recording. Regenerate it; don't hand-edit it |
+| `dist/` | **Committed build output** — what Cloudflare Pages serves |
 
 The vendored files come from `stoatworks-backend/pages-demo`. Fix them there and
 copy out, or the copies drift.
@@ -38,9 +38,13 @@ copy out, or the copies drift.
 
 ```bash
 demo/record-demo.sh                                          # record + build + assemble
-demo/serve-demo.py --dir demo/dist --base /atem-overseer/    # check it locally first
-demo/deploy-pages.sh --dist demo/dist --label "atem-overseer demo"
+demo/serve-demo.py --dir demo/dist    # check it locally first
+git add demo/dist && git commit && git push   # Cloudflare publishes it
 ```
+
+Cloudflare Pages publishes `demo/dist` from the repo with **no build command**.
+It has to be committed: assembling the demo means running the app against its
+mock devices and capturing what it says, which a build container can't do.
 
 ## Rules the demo has to keep
 

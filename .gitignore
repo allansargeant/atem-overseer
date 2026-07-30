@@ -7,5 +7,3 @@ atem-overseer.config.json
 .env
 *.tsbuildinfo
 
-# Hosted-demo build output
-demo/dist/

@@ -69,7 +69,7 @@ if base != '/':
 if not re.search(r'<meta\s+charset', html, re.I):
     html = '<meta charset="utf-8">\n' + html
 
-shim = '<script src="demo-shim.js" data-fixtures="demo-fixtures.json"></script>\n'
+shim = f'<script src="demo-shim.js" data-fixtures="demo-fixtures.json" data-base="{base}"></script>\n'
 if 'demo-shim.js' not in html:
     # Before the first <script src=...>, or failing that at the end of <body>.
     match = re.search(r'<script\b[^>]*\bsrc=', html)
