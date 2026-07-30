@@ -1,7 +1,7 @@
 # atem-overseer's hosted demo
 
 The dashboard talks to ATEM switchers over the LAN, so it can't be hosted in any
-useful sense. What is at <https://atem-overseer.stoatworks-labs.com> is a
+useful sense. What is at <https://atem-overseer-demo.stoatworks-labs.com> is a
 **click-through demo**: the real, unmodified dashboard, replaying responses
 recorded from the server running its built-in `--mock` fleet.
 

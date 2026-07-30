@@ -24,7 +24,7 @@ what you see is the app receiving them.*
 record/stream status, live program-audio meters, drive time-remaining, ISO/PGM
 mode and transport controls.*
 
-**Click around it yourself: <https://atem-overseer.stoatworks-labs.com>** — the
+**Click around it yourself: <https://atem-overseer-demo.stoatworks-labs.com>** — the
 real dashboard in your browser, replaying recorded telemetry from the `--mock`
 fleet, so the meters move and the timecode advances. Transport controls are
 inert there and say so; the server has to be on the network with your switchers
