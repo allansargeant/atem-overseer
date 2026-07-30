@@ -116,12 +116,36 @@ jobs:
         if: startsWith(matrix.os, 'ubuntu')
         run: cd launcher && npm run tauri build -- --bundles deb rpm
 
+      - name: Build the macOS .pkg
+        if: startsWith(matrix.os, 'macos')
+        shell: bash
+        # Tauri has no pkg bundler, so the installer is built from the .app it
+        # produced — the same helper the rest of the fleet uses, so the artefact
+        # matches. Only ad-hoc sign when there is no Developer ID configured:
+        # re-signing a properly signed and notarised bundle would invalidate it.
+        run: |
+          source scripts/release-lib.sh
+          version="${{ github.event.inputs.tag || github.ref_name }}"
+          version="${version#v}"
+          case "$version" in [0-9]*) ;; *) version="$(node -p "require('./package.json').version")" ;; esac
+          rl_init "Atem Overseer" atem-overseer "$version" com.stoatworks.atem-overseer "$GITHUB_WORKSPACE/out"
+          appdir="launcher/src-tauri/target/${{ matrix.tauri_target }}/release/bundle/macos"
+          app="Atem Overseer.app"
+          if [ ! -d "$appdir/$app" ]; then echo "no .app produced, skipping .pkg"; exit 0; fi
+          stage="$RUNNER_TEMP/stage-pkg"
+          rm -rf "$stage"; mkdir -p "$stage" "$GITHUB_WORKSPACE/out"
+          cp -R "$appdir/$app" "$stage/"
+          if [ "${{ steps.cfg.outputs.signing }}" != "true" ]; then
+            rl_adhoc_sign "$stage/$app"
+          fi
+          rl_pkg "${{ matrix.name }}" "$stage" --app "$app"
+
       - name: Collect installers
         shell: bash
         run: |
           mkdir -p out
           find launcher/src-tauri/target -type f \
-            \( -name '*.dmg' -o -name '*.msi' -o -name '*.exe' -o -name '*.deb' -o -name '*.AppImage' -o -name '*.rpm' \) \
+            \( -name '*.dmg' -o -name '*.pkg' -o -name '*.msi' -o -name '*.exe' -o -name '*.deb' -o -name '*.AppImage' -o -name '*.rpm' \) \
             -path '*/release/bundle/*' -exec cp {} out/ \; || true
           ls -la out
 
