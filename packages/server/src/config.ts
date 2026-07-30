@@ -80,7 +80,10 @@ export function configPath(): string {
  * without any ATEM hardware on the network.
  */
 export function mockConfig(): OverseerConfig {
-  return {
+  // applyEnv here too: --mock bypasses loadConfig entirely, so without this
+  // ATEM_OVERSEER_PORT/HOST are silently ignored in exactly the mode people
+  // develop and record demos in, and the server binds the default port anyway.
+  return applyEnv({
     ...DEFAULTS,
     devices: [
       { id: 'cam-a', name: 'Main Stage', address: '10.0.0.11' },
@@ -110,7 +113,7 @@ export function mockConfig(): OverseerConfig {
         },
       },
     },
-  };
+  });
 }
 
 /** env overrides let the av-launcher inject host/port without touching the file */

@@ -24,6 +24,12 @@ what you see is the app receiving them.*
 record/stream status, live program-audio meters, drive time-remaining, ISO/PGM
 mode and transport controls.*
 
+**Click around it yourself: <https://stoatworks-labs.com/atem-overseer/>** — the
+real dashboard in your browser, replaying recorded telemetry from the `--mock`
+fleet, so the meters move and the timecode advances. Transport controls are
+inert there and say so; the server has to be on the network with your switchers
+to control anything. See [demo/README.md](demo/README.md).
+
 ```mermaid
 flowchart LR
     subgraph Switchers["ATEM switchers"]
