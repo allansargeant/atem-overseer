@@ -58,8 +58,7 @@ echo "==> Assembling the site"
 demo/build-demo.sh \
   --src packages/web/dist \
   --fixtures demo/demo-fixtures.json \
-  --out demo/dist \
-  --base /atem-overseer/
+  --out demo/dist
 
 echo
 echo "Preview it exactly as Pages will serve it:"
