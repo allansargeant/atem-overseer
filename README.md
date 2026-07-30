@@ -11,6 +11,13 @@ A browser-based dashboard for monitoring — and controlling — a fleet of
 Blackmagic ATEM switchers from one screen, styled after Blackmagic's own
 multiviewer.
 
+[![Watch it running — 39 seconds](docs/video-thumb.png)](https://www.youtube.com/watch?v=zY5R1NHSDAk)
+
+*A 39-second tour, driven over the app's own HTTP API. The three switchers are the
+built-in `--mock` fleet, so their record/stream state is simulated — but the picture in
+the tiles is not: real test-pattern streams were pushed into the app's RTMP ingest, and
+what you see is the app receiving them.*
+
 ![Atem Overseer dashboard](docs/screenshots/dashboard.png)
 
 *The dashboard running the built-in `--mock` fleet: one tile per switcher with
