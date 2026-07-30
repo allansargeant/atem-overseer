@@ -1,5 +1,9 @@
 node_modules/
 dist/
+# ...except the demo's build output, which Cloudflare Pages serves straight from
+# the repo. It can't be built in CI: assembling it means running the server
+# against its --mock fleet and recording what it says.
+!demo/dist/
 .media/
 *.log
 .DS_Store
