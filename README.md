@@ -184,6 +184,26 @@ from [Releases](https://github.com/stoatworks-labs/atem-overseer/releases), or s
 Portions of this project were written with AI assistance and reviewed by a human.
 Use at your own risk in production/live environments.
 
+## Unsigned builds — Gatekeeper, SmartScreen & Defender Firewall
+
+The release binaries are **not code-signed or notarized** — that needs paid Apple
+and Microsoft developer certificates this project doesn't carry. The downloads are
+fine; the OS just can't identify the publisher, so it warns you the first time.
+
+- **macOS** — *"cannot be opened because the developer cannot be verified"*.
+  Right-click the app → **Open** → **Open**, or clear the flag:
+  `xattr -dr com.apple.quarantine "/Applications/Atem Overseer.app"`
+- **Windows** — SmartScreen shows *"Windows protected your PC"* →
+  **More info** → **Run anyway**.
+- **Windows Defender Firewall** — first launch pops *"Allow Atem Overseer to communicate
+  on these networks"*. Tick **Private** (and **Domain** on a managed network) — Atem
+  Overseer needs it to serve the dashboard and poll ATEM switchers on the LAN. Deny it
+  and switchers stay greyed out and the dashboard won't load from another machine.
+- **Linux** — no signing gate.
+
+Per-artifact steps, self-signing, checksum verification and the Defender Firewall reset
+procedure: **[docs/UNSIGNED.md](docs/UNSIGNED.md)**.
+
 ## License
 
 MIT
