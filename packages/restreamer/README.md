@@ -8,7 +8,7 @@ so the split is CPU-cheap and lossless.
 
 It has **no coupling to any app** — only Node's global `fetch` (or an injected
 one). That's deliberate: it lives in Atem Overseer today and is meant to drop
-into [flock](https://github.com/allansargeant) (or anything else) unchanged.
+into [flock](https://github.com/stoatworks-labs/flock) (or anything else) unchanged.
 
 ```
  encoder ──RTMP──▶  Restreamer / Core  ──▶ monitor copy  → your app's ingest

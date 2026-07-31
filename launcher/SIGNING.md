@@ -9,7 +9,7 @@ This page is only relevant **if** you have a **paid Apple Developer Program**
 membership and want a signed + notarized build that opens with a normal
 double-click. Notarization is a paid-account feature — there's no free path — so
 if you don't have an account, ignore this file. When the secrets below are
-absent the [`release-macos`](../.github/workflows/release-macos.yml) workflow
+absent the [`release-desktop`](../.github/workflows/release-desktop.yml) workflow
 simply produces the unsigned `.dmg`; add them and it produces a signed one. You
 add them in the repo yourself — they are never entered or stored anywhere else.
 
