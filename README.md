@@ -92,10 +92,10 @@ Behind each tile's ⚙ (gear):
 
 | Build | Download | Size |
 | --- | --- | --- |
-| Apple Silicon · .dmg disk image | [`Atem.Overseer_0.2.1_aarch64.dmg`](https://github.com/stoatworks-labs/atem-overseer/releases/download/v0.2.1/Atem.Overseer_0.2.1_aarch64.dmg) | 48 MB |
-| Intel · .dmg disk image | [`Atem.Overseer_0.2.1_x64.dmg`](https://github.com/stoatworks-labs/atem-overseer/releases/download/v0.2.1/Atem.Overseer_0.2.1_x64.dmg) | 50 MB |
-| Apple Silicon · .pkg installer | [`atem-overseer-0.2.1-macos-aarch64.pkg`](https://github.com/stoatworks-labs/atem-overseer/releases/download/v0.2.1/atem-overseer-0.2.1-macos-aarch64.pkg) | 49 MB |
-| Intel · .pkg installer | [`atem-overseer-0.2.1-macos-x86_64.pkg`](https://github.com/stoatworks-labs/atem-overseer/releases/download/v0.2.1/atem-overseer-0.2.1-macos-x86_64.pkg) | 50 MB |
+| Apple Silicon · .dmg disk image | [`Atem.Overseer_0.2.1_aarch64.dmg`](https://github.com/stoatworks-labs/atem-overseer/releases/download/v0.2.2/Atem.Overseer_0.2.2_aarch64.dmg) | 46 MB |
+| Intel · .dmg disk image | [`Atem.Overseer_0.2.1_x64.dmg`](https://github.com/stoatworks-labs/atem-overseer/releases/download/v0.2.2/Atem.Overseer_0.2.2_x64.dmg) | 47 MB |
+| Apple Silicon · .pkg installer | [`atem-overseer-0.2.1-macos-aarch64.pkg`](https://github.com/stoatworks-labs/atem-overseer/releases/download/v0.2.2/atem-overseer-0.2.2-macos-aarch64.pkg) | 46 MB |
+| Intel · .pkg installer | [`atem-overseer-0.2.1-macos-x86_64.pkg`](https://github.com/stoatworks-labs/atem-overseer/releases/download/v0.2.2/atem-overseer-0.2.2-macos-x86_64.pkg) | 48 MB |
 
 </details>
 
@@ -104,7 +104,7 @@ Behind each tile's ⚙ (gear):
 
 | Build | Download | Size |
 | --- | --- | --- |
-| x64 · .exe installer | [`Atem.Overseer_0.2.1_x64-setup.exe`](https://github.com/stoatworks-labs/atem-overseer/releases/download/v0.2.1/Atem.Overseer_0.2.1_x64-setup.exe) | 30 MB |
+| x64 · .exe installer | [`Atem.Overseer_0.2.1_x64-setup.exe`](https://github.com/stoatworks-labs/atem-overseer/releases/download/v0.2.2/Atem.Overseer_0.2.2_x64-setup.exe) | 29 MB |
 
 </details>
 
@@ -113,8 +113,8 @@ Behind each tile's ⚙ (gear):
 
 | Build | Download | Size |
 | --- | --- | --- |
-| x64 · .deb package (Debian/Ubuntu) | [`Atem.Overseer_0.2.1_amd64.deb`](https://github.com/stoatworks-labs/atem-overseer/releases/download/v0.2.1/Atem.Overseer_0.2.1_amd64.deb) | 58 MB |
-| x64 · .rpm package (Fedora/RHEL) | [`Atem.Overseer-0.2.1-1.x86_64.rpm`](https://github.com/stoatworks-labs/atem-overseer/releases/download/v0.2.1/Atem.Overseer-0.2.1-1.x86_64.rpm) | 58 MB |
+| x64 · .deb package (Debian/Ubuntu) | [`Atem.Overseer_0.2.1_amd64.deb`](https://github.com/stoatworks-labs/atem-overseer/releases/download/v0.2.2/Atem.Overseer_0.2.2_amd64.deb) | 55 MB |
+| x64 · .rpm package (Fedora/RHEL) | [`Atem.Overseer-0.2.1-1.x86_64.rpm`](https://github.com/stoatworks-labs/atem-overseer/releases/download/v0.2.2/Atem.Overseer-0.2.2-1.x86_64.rpm) | 55 MB |
 
 </details>
 
