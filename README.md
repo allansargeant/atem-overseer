@@ -3,9 +3,9 @@
 > **AI-assisted project.** This codebase was created with [Claude Code](https://claude.com/claude-code)
 > (Anthropic), directed and reviewed by a human author. It was developed and
 > verified end-to-end against a built-in simulated switcher fleet (`--mock`), and
-> has **not yet** been run against live ATEM hardware. Validate transport,
-> streaming and media-upload behaviour against your own switchers before relying
-> on it for a live show.
+> has since been **tested against real ATEM hardware in a lab** — but **never on a
+> live show**. Validate transport, streaming and media-upload behaviour against
+> your own switchers before relying on it for one.
 
 A browser-based dashboard for monitoring — and controlling — a fleet of
 Blackmagic ATEM switchers from one screen, styled after Blackmagic's own
@@ -222,7 +222,8 @@ from [Releases](https://github.com/stoatworks-labs/atem-overseer/releases), or s
 - **No authentication, and the server binds to every interface.** Anyone who can reach port
   4700 can start/stop recording and streaming on your switchers. There is no token, session or
   TLS option — run it on a private production network only.
-- Developed and verified end-to-end against the built-in `--mock` fleet. Validate
+- Developed and verified end-to-end against the built-in `--mock` fleet, and since
+  tested against real ATEM hardware in a lab — but never on a live show. Validate
   transport/upload behaviour against your specific ATEM model before relying on
   it live.
 
