@@ -252,6 +252,22 @@ fine; the OS just can't identify the publisher, so it warns you the first time.
 Per-artifact steps, self-signing, checksum verification and the Defender Firewall reset
 procedure: **[docs/UNSIGNED.md](docs/UNSIGNED.md)**.
 
+## Control it from Companion
+
+[**companion-module-atem-overseer**](https://github.com/stoatworks-labs/companion-module-atem-overseer) is a [Bitfocus Companion](https://bitfocus.io/companion) connection module for this app.
+
+Record and stream per switcher **and across the whole fleet**, PGM/ISO mode,
+monitor mute and restreamer channels, with a preset section generated per
+switcher.
+
+The button worth putting in front of an operator is **ALL rolling** — every
+*connected* switcher recording. "Something is recording" is true when three of
+four machines are rolling, which is the failure an ISO shoot cannot recover
+from.
+
+It is not in the official Companion module store — install it via
+**Settings → Developer modules path**.
+
 ## License
 
 MIT
