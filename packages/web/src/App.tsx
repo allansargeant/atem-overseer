@@ -36,6 +36,11 @@ export default function App() {
         <a className="toolbtn" href="/api/config.xml" download>
           Save Config
         </a>
+        {/* Opens the shared About dialog — see public/about.js, which delegates
+            this attribute from the document, so nothing needs importing here. */}
+        <button className="toolbtn" type="button" data-stoatworks-about>
+          About
+        </button>
         <span className={`conn${connected ? ' ok' : ''}`}>
           <span className="dot" />
           {connected ? 'Connected' : 'Reconnecting'}
