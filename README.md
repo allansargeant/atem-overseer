@@ -262,3 +262,7 @@ It is not in the official Companion module store — install it via
 ## License
 
 MIT
+
+<!-- attributions:start -->
+This project is built on other people's work — see [ATTRIBUTIONS.md](ATTRIBUTIONS.md).
+<!-- attributions:end -->
