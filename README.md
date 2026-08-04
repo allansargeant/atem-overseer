@@ -226,11 +226,6 @@ from [Releases](https://github.com/stoatworks-labs/atem-overseer/releases), or s
   transport/upload behaviour against your specific ATEM model before relying on
   it live.
 
-## Built with AI assistance
-
-Portions of this project were written with AI assistance and reviewed by a human.
-Use at your own risk in production/live environments.
-
 ## Unsigned builds — Gatekeeper, SmartScreen & Defender Firewall
 
 The release binaries are **not code-signed or notarized** — that needs paid Apple
