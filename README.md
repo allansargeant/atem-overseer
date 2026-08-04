@@ -94,8 +94,7 @@ Behind each tile's ⚙ (gear):
 | --- | --- | --- |
 | Apple Silicon · .dmg disk image | [`Atem.Overseer_0.2.2_aarch64.dmg`](https://github.com/stoatworks-labs/atem-overseer/releases/download/v0.2.2/Atem.Overseer_0.2.2_aarch64.dmg) | 48 MB |
 | Intel · .dmg disk image | [`Atem.Overseer_0.2.2_x64.dmg`](https://github.com/stoatworks-labs/atem-overseer/releases/download/v0.2.2/Atem.Overseer_0.2.2_x64.dmg) | 50 MB |
-| Apple Silicon · .pkg installer | [`atem-overseer-0.2.2-macos-aarch64.pkg`](https://github.com/stoatworks-labs/atem-overseer/releases/download/v0.2.2/atem-overseer-0.2.2-macos-aarch64.pkg) | 49 MB |
-| Intel · .pkg installer | [`atem-overseer-0.2.2-macos-x86_64.pkg`](https://github.com/stoatworks-labs/atem-overseer/releases/download/v0.2.2/atem-overseer-0.2.2-macos-x86_64.pkg) | 50 MB |
+| Intel · .pkg installer | [`atem-overseer-0.2.2-macos-x86_64.pkg`](https://github.com/stoatworks-labs/atem-overseer/releases/download/v0.2.2/atem-overseer-0.2.2-macos-x86_64.pkg) | 51 MB |
 
 </details>
 
@@ -124,7 +123,7 @@ Also in this release:
 
 All builds, checksums and release notes: [github.com/stoatworks-labs/atem-overseer/releases](https://github.com/stoatworks-labs/atem-overseer/releases).
 
-These builds are unsigned, so macOS and Windows each warn once on first launch — see [Unsigned builds — Gatekeeper, SmartScreen & Defender Firewall](#unsigned-builds--gatekeeper-smartscreen--defender-firewall) for the one-time fix.
+macOS builds are signed and notarised and open normally. The Windows builds are unsigned, so SmartScreen warns once — see [Unsigned builds — Gatekeeper, SmartScreen & Defender Firewall](#unsigned-builds--gatekeeper-smartscreen--defender-firewall) for the one-time click-through.
 
 <!-- downloads:end -->
 
