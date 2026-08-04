@@ -226,15 +226,12 @@ from [Releases](https://github.com/stoatworks-labs/atem-overseer/releases), or s
   transport/upload behaviour against your specific ATEM model before relying on
   it live.
 
-## Unsigned builds — Gatekeeper, SmartScreen & Defender Firewall
+## Windows SmartScreen & Defender Firewall
 
-The release binaries are **not code-signed or notarized** — that needs paid Apple
-and Microsoft developer certificates this project doesn't carry. The downloads are
-fine; the OS just can't identify the publisher, so it warns you the first time.
+macOS builds are **Developer ID-signed and notarised by Apple** — they open
+normally, with no Gatekeeper warning and no quarantine step. The Windows
+binaries are **not** code-signed, so Windows still warns you the first time.
 
-- **macOS** — *"cannot be opened because the developer cannot be verified"*.
-  Right-click the app → **Open** → **Open**, or clear the flag:
-  `xattr -dr com.apple.quarantine "/Applications/Atem Overseer.app"`
 - **Windows** — SmartScreen shows *"Windows protected your PC"* →
   **More info** → **Run anyway**.
 - **Windows Defender Firewall** — first launch pops *"Allow Atem Overseer to communicate
