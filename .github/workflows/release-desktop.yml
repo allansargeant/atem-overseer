@@ -149,7 +149,7 @@ jobs:
             -path '*/release/bundle/*' -exec cp {} out/ \; || true
           ls -la out
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: atem-overseer-desktop-${{ matrix.name }}
           path: out/*
